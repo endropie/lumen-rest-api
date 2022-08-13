@@ -3,7 +3,8 @@
 namespace Endropie\LumenRestApi\Support;
 
 use Endropie\LumenRestApi\Http\Filter;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder as EBuilder;
+use Illuminate\Database\Query\Builder as QBuilder;
 use Illuminate\Support\Stringable;
 
 class Filterable
@@ -19,7 +20,7 @@ class Filterable
         $this->filterable = $filterable;
     }
 
-    public function builder(Builder $builder)
+    public function builder(EBuilder | QBuilder $builder)
     {
         $this->builder = $builder;
 
@@ -61,7 +62,7 @@ class Filterable
 
         if ($operator = $this->filterable->getRequest()->input($name . "__operator" . $append)) {
 
-            $operators = $this->builder->getQuery()->operators;
+            $operators = $this->getQuery()->operators;
 
             if (in_array($operator, $operators)) return $operator;
         }
@@ -71,7 +72,7 @@ class Filterable
 
     public function getColumns()
     {
-        $tableName = $this->builder->getQuery()->from;
+        $tableName = $this->getQuery()->from;
         return app('db')->getSchemaBuilder()->getColumnListing($tableName);
     }
 
@@ -83,5 +84,11 @@ class Filterable
     public function stringable($str)
     {
         return new Stringable($str);
+    }
+
+    protected function getQuery()
+    {
+        if ($this->builder instanceof QBuilder) return $this->builder;
+        return $this->builder->getQuery();
     }
 }
