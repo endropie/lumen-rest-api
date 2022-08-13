@@ -3,7 +3,8 @@
 namespace Endropie\LumenRestApi\Http;
 
 use Endropie\LumenRestApi\Support\Filterable;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QBuilder;
+use Illuminate\Database\Eloquent\Builder as EBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Stringable;
 
@@ -26,7 +27,7 @@ class Filter
         $this->manager = new Filterable($this);
     }
 
-    public function apply(Builder $builder)
+    public function apply(QBuilder | EBuilder $builder)
     {
         $this->builder = $builder;
 
@@ -35,16 +36,20 @@ class Filter
 
     public function withTrashed($value = 1)
     {
-        $softDelete = in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($this->builder->getModel()));
-        if ($value && $softDelete) return $this->builder->withTrashed();
+        if ($this->builder instanceof EBuilder) {
+            $softDelete = in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($this->builder->getModel()));
+            if ($value && $softDelete) return $this->builder->withTrashed();
+        }
 
         return $this->builder;
     }
 
     public function onlyTrashed($value = 1)
     {
-        $softDelete = in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($this->builder->getModel()));
-        if ($value && $softDelete) return $this->builder->onlyTrashed();
+        if ($this->builder instanceof EBuilder) {
+            $softDelete = in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($this->builder->getModel()));
+            if ($value && $softDelete) return $this->builder->onlyTrashed();
+        }
 
         return $this->builder;
     }
