@@ -25,7 +25,7 @@ trait HasFilterable
     {
         $limit = request()->get('limit', $limit);
 
-        if ($limit == '*') $limit = $query->count();
+        if ($this->isLimitAll($limit)) $limit = $query->count();
 
         return $query->paginate($limit);
     }
@@ -35,7 +35,12 @@ trait HasFilterable
         $limit = request()->get('limit', $limit);
         $offset = request()->get('offset', 0);
 
-        return ($limit == '*') ? $query->get()
+        return ($this->isLimitAll($limit)) ? $query->get()
             : $query->limit($limit)->offset($offset)->get();
+    }
+
+    private function isLimitAll ($value)
+    {
+        return in_array(strtolower((string) $value), ['*', 'all', '0']);
     }
 }
