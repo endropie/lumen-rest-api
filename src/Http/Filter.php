@@ -54,6 +54,34 @@ class Filter
         return $this->builder;
     }
 
+    public function lastDay($val)
+    {
+        if ($val <= 0) return $this->builder;
+
+        if (!$this->builder instanceof Builder) return $this->builder;
+
+        if (!$this->builder->getModel()) return $this->builder;
+
+        $column = $this->builder->getModel()::CREATED_AT;
+        $toDate = app(\Carbon\Carbon::class)->addDays(-1 * $val);
+
+        return $this->builder->when(fn($q) => $q->where($column, '>=', $toDate));
+    }
+
+    public function lastHour($val)
+    {
+        if ($val <= 0) return $this->builder;
+
+        if (!$this->builder instanceof Builder) return $this->builder;
+
+        if (!$this->builder->getModel()) return $this->builder;
+
+        $column = $this->builder->getModel()::CREATED_AT;
+        $toDate = app(\Carbon\Carbon::class)->addHours(-1 * $val);
+
+        return $this->builder->when(fn($q) => $q->where($column, '>=', $toDate));
+    }
+
     public function sort($value, $key = null)
     {
         $columns = $this->manager->getColumns();
