@@ -50,6 +50,10 @@ class Filterable
         } else if (strlen($value) && in_array($name, $columns)) {
 
             $operator = $this->getOperator($name, $key);
+            
+            if ($tableName = $this->builder->getModel()->getTable()) {
+                $name = $tableName .".". $name;
+            }
 
             $this->builder->where($name, $operator, $value);
         }
